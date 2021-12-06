@@ -69,10 +69,16 @@ spi_bus_handle_t spi_bus_create(spi_host_device_t host_id, const spi_config_t *b
         .quadhd_io_num = -1,
         .max_transfer_sz = bus_conf->max_transfer_sz,
     };
+<<<<<<< HEAD
 #if (ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(4, 3, 0))
     esp_err_t ret = spi_bus_initialize(host_id, &buscfg, SPI_DMA_CH_AUTO);
+=======
+#if CONFIG_IDF_TARGET_ESP32S3
+    int dma_chan = SPI_DMA_CH_AUTO;
+>>>>>>> origin/usb/add_usb_solutions
 #else
     int dma_chan = host_id; //set dma channel equals to host_id by default
+#endif
     esp_err_t ret = spi_bus_initialize(host_id, &buscfg, dma_chan);
 #endif
     SPI_BUS_CHECK(ESP_OK == ret, "spi bus create failed", NULL);

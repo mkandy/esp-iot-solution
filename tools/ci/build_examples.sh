@@ -12,10 +12,59 @@ if [[ -n ${DEBUG_SHELL} ]]; then
   set -x # Activate the expand mode if DEBUG is anything but empty.
 fi
 
+<<<<<<< HEAD
 if [ -z ${CI_NODE_TOTAL} ]; then
   CI_NODE_TOTAL=1
   echo "Assuming CI_NODE_TOTAL=${CI_NODE_TOTAL}"
 fi
+=======
+set -o errexit # Exit if command failed.
+set -o pipefail # Exit if pipe failed.
+set -o nounset # Exit if variable not set.
+
+# Remove the initial space and instead use '\n'.
+IFS=$'\n\t'
+
+# -----------------------------------------------------------------------------
+
+function die() {
+    echo "${1:-"Unknown Error"}" 1>&2
+    exit 1
+}
+
+[ -z "${IOT_SOLUTION_PATH}" ] && die "IOT_SOLUTION_PATH is not set"
+[ -z "${IDF_PATH}" ] && die "IDF_PATH is not set"
+[ -z "${BUILD_PATH}" ] && die "BUILD_PATH is not set"
+[ -z "${LOG_PATH}" ] && die "LOG_PATH is not set"
+[ -d "${LOG_PATH}" ] || mkdir -p ${LOG_PATH}
+
+echo "build_examples running in ${PWD}"
+
+# only 0 or 1 arguments
+[ $# -le 1 ] || die "Have to run as $(basename $0) [<JOB_NAME>]"
+
+export BATCH_BUILD=1
+export V=0 # only build verbose if there's an error
+
+shopt -s lastpipe # Workaround for Bash to use variables in loops (http://mywiki.wooledge.org/BashFAQ/024)
+
+function find_examples() {
+    LIST_OF_EXAMPLES=($(find ./examples -type d -name main | sort))
+    local INDEX=0
+    for FN in "${LIST_OF_EXAMPLES[@]}";
+    do
+        if [[ $FN =~ "build/" ]]
+        then
+            unset LIST_OF_EXAMPLES[INDEX]
+        fi
+        if [[ $FN =~ "usb/" ]]
+        then
+            unset LIST_OF_EXAMPLES[INDEX]
+        fi
+        INDEX=$(( $INDEX + 1 ))
+    done
+}
+>>>>>>> origin/usb/add_usb_solutions
 
 if [ -z ${CI_NODE_INDEX} ]; then
   # Gitlab uses a 1-based index
